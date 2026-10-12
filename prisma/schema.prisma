@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  AGENT
+}
+
+enum DealType {
+  SALE
+  RENT
+}
+
+enum PropertyType {
+  STUDIO
+  ONE_BED
+  TWO_BED
+  THREE_BED
+  MULTI_BED
+  MAISONETTE
+  HOUSE
+  OFFICE
+  SHOP
+  LAND
+  GARAGE
+  BUSINESS
+}
+
+enum PropertyStatus {
+  DRAFT
+  ACTIVE
+  RESERVED
+  SOLD
+  RENTED
+  ARCHIVED
+}
+
+enum Furnishing {
+  UNFURNISHED
+  PARTIAL
+  FURNISHED
+}
+
+enum ClientType {
+  BUYER
+  TENANT
+  OWNER
+  LANDLORD
+}
+
+enum InquiryKind {
+  PROPERTY
+  VIEWING
+  SELL
+  VALUATION
+  GENERAL
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  VIEWING
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum ViewingStatus {
+  SCHEDULED
+  DONE
+  CANCELLED
+  NO_SHOW
+}
+
+enum DealStatus {
+  PENDING
+  DEPOSIT
+  CLOSED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  phone        String?
+  photoUrl     String?
+  bioBg        String?
+  bioEn        String?
+  role         Role      @default(AGENT)
+  active       Boolean   @default(true)
+  showOnSite   Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  properties   Property[]
+  clients      Client[]
+  inquiries    Inquiry[]
+  viewings     Viewing[]
+  deals        Deal[]
+  notes        ClientNote[]
+}
+
+model Property {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  refNo         String          @unique
+  titleBg       String
+  titleEn       String?
+  descriptionBg String          @db.Text
+  descriptionEn String?         @db.Text
+  dealType      DealType
+  type          PropertyType
+  status        PropertyStatus  @default(DRAFT)
+  price         Int
+  priceOnRequest Boolean        @default(false)
+  area          Float
+  rooms         Int?
+  bathrooms     Int?
+  floor         Int?
+  totalFloors   Int?
+  yearBuilt     Int?
+  construction  String?
+  heating       String?
+  furnishing    Furnishing      @default(UNFURNISHED)
+  city          String          @default("Пловдив")
+  district      String
+  address       String?
+  lat           Float?
+  lng           Float?
+  features      String[]
+  featured      Boolean         @default(false)
+  source        String?
+  externalId    String?         @unique
+  externalUrl   String?
+  views         Int             @default(0)
+  agentId       String?
+  agent         User?           @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  ownerId       String?
+  owner         Client?         @relation("OwnedProperties", fields: [ownerId], references: [id], onDelete: SetNull)
+  images        PropertyImage[]
+  inquiries     Inquiry[]
+  viewings      Viewing[]
+  deals         Deal[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([status, dealType, type])
+  @@index([district])
+}
+
+model PropertyImage {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([propertyId, order])
+}
+
+model Client {
+  id                 String       @id @default(cuid())
+  name               String
+  phone              String?
+  email              String?
+  type               ClientType   @default(BUYER)
+  source             String?
+  budgetMin          Int?
+  budgetMax          Int?
+  preferredDistricts String[]
+  wantedTypes        String[]
+  notesSummary       String?      @db.Text
+  agentId            String?
+  agent              User?        @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  ownedProperties    Property[]   @relation("OwnedProperties")
+  inquiries          Inquiry[]
+  viewings           Viewing[]
+  deals              Deal[]
+  notes              ClientNote[]
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model ClientNote {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  text      String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model Inquiry {
+  id         String        @id @default(cuid())
+  kind       InquiryKind   @default(GENERAL)
+  status     InquiryStatus @default(NEW)
+  name       String
+  phone      String?
+  email      String?
+  message    String?       @db.Text
+  preferredDate String?
+  lang       String        @default("bg")
+  propertyId String?
+  property   Property?     @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  clientId   String?
+  client     Client?       @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  agentId    String?
+  agent      User?         @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model Viewing {
+  id          String        @id @default(cuid())
+  propertyId  String
+  property    Property      @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  agentId     String?
+  agent       User?         @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  startsAt    DateTime
+  durationMin Int           @default(30)
+  status      ViewingStatus @default(SCHEDULED)
+  feedback    String?       @db.Text
+  createdAt   DateTime      @default(now())
+
+  @@index([startsAt])
+}
+
+model Deal {
+  id               String     @id @default(cuid())
+  type             DealType
+  status           DealStatus @default(PENDING)
+  propertyId       String
+  property         Property   @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  clientId         String
+  client           Client     @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  agentId          String?
+  agent            User?      @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  price            Int
+  commissionPct    Float      @default(3)
+  commissionAmount Int
+  agentSharePct    Float      @default(50)
+  depositAmount    Int?
+  closedAt         DateTime?
+  notes            String?    @db.Text
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+model Settings {
+  id          Int     @id @default(1)
+  companyName String  @default("Nextimo – Недвижими имоти")
+  phone       String  @default("089 916 3240")
+  phone2      String  @default("")
+  email       String  @default("office@nextimo.bg")
+  addressBg   String  @default("бул. Дунав 68, Пловдив 4000")
+  addressEn   String  @default("68 Dunav Blvd, Plovdiv 4000, Bulgaria")
+  hoursBg     String  @default("Пон–Пет 9:00–18:00, Съб 10:00–14:00")
+  hoursEn     String  @default("Mon–Fri 9:00–18:00, Sat 10:00–14:00")
+  facebook    String  @default("https://www.facebook.com/share/1Dszx1FPFo/")
+  instagram   String  @default("")
+  mapLat      Float   @default(42.1354)
+  mapLng      Float   @default(24.7453)
+  aboutBg     String  @default("") @db.Text
+  aboutEn     String  @default("") @db.Text
+  defaultCommissionPct Float @default(3)
+}
