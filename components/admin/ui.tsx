@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-  DEAL_STATUS, INQUIRY_STATUS, PROPERTY_STATUS, VIEWING_STATUS, label,
+  CONTRACT_STATUS, DEAL_STATUS, INQUIRY_STATUS, PROPERTY_STATUS, VIEWING_STATUS, label,
 } from "@/lib/constants";
 
 const COLORS: Record<string, string> = {
@@ -12,9 +12,11 @@ const COLORS: Record<string, string> = {
   SCHEDULED: "blue", DONE: "green", CANCELLED: "gray", NO_SHOW: "red",
   // deal
   PENDING: "amber", DEPOSIT: "blue", CLOSED: "green",
+  // contract
+  SIGNED: "green",
 };
 
-const MAPS = { property: PROPERTY_STATUS, inquiry: INQUIRY_STATUS, viewing: VIEWING_STATUS, deal: DEAL_STATUS };
+const MAPS = { property: PROPERTY_STATUS, inquiry: INQUIRY_STATUS, viewing: VIEWING_STATUS, deal: DEAL_STATUS, contract: CONTRACT_STATUS };
 
 export function StatusBadge({ kind, value }: { kind: keyof typeof MAPS; value: string }) {
   return <span className={`badge ${COLORS[value] || ""}`}>{label(MAPS[kind], value)}</span>;

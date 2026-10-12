@@ -76,6 +76,18 @@ export const DEAL_STATUS: Record<string, L> = {
   CANCELLED: { bg: "Отказана", en: "Cancelled" },
 };
 
+export const CONTRACT_TYPES: Record<string, L> = {
+  PRELIMINARY_SALE: { bg: "Предварителен договор за продажба", en: "Preliminary sale agreement" },
+  RENT: { bg: "Договор за наем", en: "Rental agreement" },
+  BROKERAGE: { bg: "Договор за посредничество", en: "Brokerage agreement" },
+};
+
+export const CONTRACT_STATUS: Record<string, L> = {
+  DRAFT: { bg: "Чернова", en: "Draft" },
+  SIGNED: { bg: "Подписан", en: "Signed" },
+  CANCELLED: { bg: "Анулиран", en: "Cancelled" },
+};
+
 export const PLOVDIV_DISTRICTS = [
   "Център", "Старият град", "Капана", "Кършияка", "Тракия", "Смирненски", "Каменица 1", "Каменица 2",
   "Кючук Париж", "Младежки хълм", "Мараша", "Остромила", "Беломорски", "Западен", "Южен", "Гагарин",

@@ -47,6 +47,7 @@ export default async function ClientPage({ params, searchParams }: { params: { i
         {c.phone && <a href={`tel:${c.phone}`} className="btn secondary small">📞 {c.phone}</a>}
         {c.phone && <a href={`viber://chat?number=${encodeURIComponent(c.phone.replace(/\s/g, ""))}`} className="btn secondary small">Viber</a>}
         <Link href={`/admin/viewings?client=${c.id}`} className="btn small">+ Оглед</Link>
+        <Link href={`/admin/contracts/new?client=${c.id}`} className="btn secondary small">+ Договор</Link>
       </PageTop>
       <Flash ok={searchParams.saved ? "Записано." : undefined} error={searchParams.error === "deals" ? "Клиентът има сделки и не може да бъде изтрит." : undefined} />
 

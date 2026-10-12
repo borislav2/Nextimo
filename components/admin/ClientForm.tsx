@@ -15,6 +15,9 @@ export default function ClientForm({ action, client: c, agents, currentUserId }:
         <div><label>Име *</label><input name="name" required defaultValue={c?.name} /></div>
         <div><label>Телефон</label><input name="phone" type="tel" defaultValue={c?.phone ?? ""} /></div>
         <div><label>Имейл</label><input name="email" type="email" defaultValue={c?.email ?? ""} /></div>
+        <div><label>ЕГН / ЕИК (за договори)</label><input name="egn" defaultValue={c?.egn ?? ""} /></div>
+        <div><label>Лична карта (№, издадена от, дата)</label><input name="idCard" defaultValue={c?.idCard ?? ""} /></div>
+        <div className="full"><label>Адрес (по лична карта)</label><input name="address" defaultValue={c?.address ?? ""} /></div>
         <div>
           <label>Тип</label>
           <select name="type" defaultValue={c?.type ?? "BUYER"}>

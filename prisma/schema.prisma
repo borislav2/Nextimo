@@ -103,6 +103,7 @@ model User {
   inquiries    Inquiry[]
   viewings     Viewing[]
   deals        Deal[]
+  contracts    Contract[]
   notes        ClientNote[]
 }
 
@@ -147,6 +148,7 @@ model Property {
   inquiries     Inquiry[]
   viewings      Viewing[]
   deals         Deal[]
+  contracts     Contract[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -170,6 +172,9 @@ model Client {
   name               String
   phone              String?
   email              String?
+  egn                String?
+  idCard             String?
+  address            String?
   type               ClientType   @default(BUYER)
   source             String?
   budgetMin          Int?
@@ -256,6 +261,42 @@ model Deal {
   notes            String?    @db.Text
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
+}
+
+enum ContractType {
+  PRELIMINARY_SALE
+  RENT
+  BROKERAGE
+}
+
+enum ContractStatus {
+  DRAFT
+  SIGNED
+  CANCELLED
+}
+
+model Contract {
+  id         String         @id @default(cuid())
+  number     String         @unique
+  type       ContractType
+  status     ContractStatus @default(DRAFT)
+  propertyId String
+  property   Property       @relation(fields: [propertyId], references: [id], onDelete: Restrict)
+  // Parties are stored as a snapshot (name, egn, idCard, address, phone, email, clientId) so a signed contract never changes
+  partyA     Json
+  partyB     Json
+  price      Int
+  deposit    Int?
+  commissionPct Float?
+  termMonths Int?
+  signedAt   DateTime?
+  notes      String?        @db.Text
+  agentId    String?
+  agent      User?          @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  @@index([createdAt])
 }
 
 model Settings {

@@ -15,6 +15,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     { href: "/admin/clients", label: "Клиенти", icon: "☺" },
     { href: "/admin/viewings", label: "Огледи", icon: "◷" },
     { href: "/admin/deals", label: "Сделки", icon: "€" },
+    { href: "/admin/contracts", label: "Договори", icon: "✎" },
   ];
   const admin =
     user.role === "ADMIN"
